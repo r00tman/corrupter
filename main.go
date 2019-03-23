@@ -77,6 +77,8 @@ func main() {
 	reader, err := os.Open(flag.Args()[0])
 	check(err)
 	m, err := png.Decode(reader)
+	check(err)
+	reader.Close()
 
 	// trying to obtain raw pointers to color data, since .At(), .Set() are very slow
 	m_raw_stride, m_raw_pix := 0, []uint8(nil)
@@ -93,8 +95,6 @@ func main() {
 		m_raw_stride = m_raw.Stride
 		m_raw_pix = m_raw.Pix
 	}
-	check(err)
-	reader.Close()
 
 	b := m.Bounds()
 

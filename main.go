@@ -9,7 +9,10 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"time"
 )
+
+var seededRand = rand.New(rand.NewSource(time.Now().UnixNano()))
 
 func check(e error) {
 	if e != nil {
@@ -28,7 +31,7 @@ func wrap(x, b int) int {
 }
 
 func offset(m float64) int {
-	sample := rand.NormFloat64() * m
+	sample := seededRand.NormFloat64() * m
 	return int(sample)
 }
 
@@ -99,9 +102,9 @@ func main() {
 	STRIDE_MAG := *strideMagPtr
 	for y := 0; y < b.Max.Y; y++ {
 		for x := 0; x < b.Max.X; x++ {
-			if rand.Intn(BHEIGHT*b.Max.X) == 0 {
+			if seededRand.Intn(BHEIGHT*b.Max.X) == 0 {
 				line_off = offset(BOFFSET)
-				stride = rand.NormFloat64() * STRIDE_MAG
+				stride = seededRand.NormFloat64() * STRIDE_MAG
 				yset = y
 			}
 			stride_off := int(stride * float64(y-yset))
@@ -124,9 +127,9 @@ func main() {
 	STD_OFFSET := *stdOffsetPtr
 	for y := 0; y < b.Max.Y; y++ {
 		for x := 0; x < b.Max.X; x++ {
-			lr += rand.NormFloat64() * LAG
-			lg += rand.NormFloat64() * LAG
-			lb += rand.NormFloat64() * LAG
+			lr += seededRand.NormFloat64() * LAG
+			lg += seededRand.NormFloat64() * LAG
+			lb += seededRand.NormFloat64() * LAG
 			offx := offset(STD_OFFSET)
 
 			ra_idx := new_img.Stride*y + 4*wrap(x+int(lr)-offx, b.Max.X)

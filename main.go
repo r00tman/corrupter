@@ -39,6 +39,7 @@ func main() {
 
 	b := m.Bounds()
 
+	// first stage is dissolve+block corruption
 	new_img := image.NewRGBA(b)
 	line_off := 0
 	stride := 0.
@@ -63,6 +64,8 @@ func main() {
 			new_img.Set(x, y, src)
 		}
 	}
+
+	// second stage is adding per-channel scan inconsistency and brightening
 	new_img1 := image.NewRGBA(b)
 
 	lr, lg, lb := -7., 0., +3.
@@ -89,6 +92,9 @@ func main() {
 			new_img1.Set(x, y, color.RGBA{uint8((r*5/6 + 10000) >> 8), uint8((g*5/6 + 10000) >> 8), uint8((b*5/6 + 10000) >> 8), uint8(a >> 8)})
 		}
 	}
+
+	// third stage is to add chromatic abberation+chromatic trails
+	// (trails happen because we're writing on the same image we read)
 	for y := b.Min.Y; y < b.Max.Y; y++ {
 		for x := b.Min.X; x < b.Max.X; x++ {
 			// offx := 10 + offset(40)

@@ -43,7 +43,8 @@ func main() {
 	line_off := 0
 	stride := 0.
 	yset := 0
-	const MAG = 2.5
+	// const MAG = 2.5
+	const MAG = 7
 	// const MAG = 0
 	// const MAG = 3
 	for y := b.Min.Y; y < b.Max.Y; y++ {
@@ -83,7 +84,9 @@ func main() {
 			_, _, b, _ := new_img.At(
 				wrap(x+int(lb)+offx, b.Min.X, b.Max.X),
 				wrap(y, b.Min.Y, b.Max.Y)).RGBA()
-			new_img1.Set(x, y, color.RGBA{uint8(r >> 8), uint8(g >> 8), uint8(b >> 8), uint8(a >> 8)})
+			// new_img1.Set(x, y, color.RGBA{uint8(r >> 8), uint8(g >> 8), uint8(b >> 8), uint8(a >> 8)})
+			// new_img1.Set(x, y, color.RGBA{uint8((r*4/6 + 20000) >> 8), uint8((g*4/6 + 20000) >> 8), uint8((b*4/6 + 20000) >> 8), uint8(a >> 8)})
+			new_img1.Set(x, y, color.RGBA{uint8((r*5/6 + 10000) >> 8), uint8((g*5/6 + 10000) >> 8), uint8((b*5/6 + 10000) >> 8), uint8(a >> 8)})
 		}
 	}
 	for y := b.Min.Y; y < b.Max.Y; y++ {

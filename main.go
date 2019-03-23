@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"image"
 	"image/color"
 	"image/png"
@@ -41,6 +42,10 @@ func uint32_to_rgba(r, g, b, a uint32) color.RGBA {
 }
 
 func main() {
+	flag.Usage = func() {
+		fmt.Fprintf(flag.CommandLine.Output(), "Usage: %s [options] [input] [output] \n", os.Args[0])
+		flag.PrintDefaults()
+	}
 	magPtr := flag.Float64("mag", 7.0, "dissolve blur strength")
 	blockHeightPtr := flag.Int("bheight", 10, "average distorted block height")
 	blockOffsetPtr := flag.Float64("boffset", 30., "distorted block offset strength")
@@ -50,7 +55,7 @@ func main() {
 	lrPtr := flag.Float64("lr", -7, "initial red scanline lag")
 	lgPtr := flag.Float64("lg", 0, "initial green scanline lag")
 	lbPtr := flag.Float64("lb", 3, "initial blue scanline lag")
-	stdOffsetPtr := flag.Float64("stdoffset", 10, "std. dev. red-blue channel offset (non-destructive)")
+	stdOffsetPtr := flag.Float64("stdoffset", 10, "std. dev. of red-blue channel offset (non-destructive)")
 	addPtr := flag.Int("add", 39, "additional brightness control (0-255)")
 
 	meanAbberPtr := flag.Int("meanabber", 10, "mean chromatic abberation offset")

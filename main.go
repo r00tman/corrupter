@@ -21,7 +21,7 @@ func wrap(x, a, b int) int {
 	if x < a {
 		return x + b - a
 	}
-	if x > b {
+	if x >= b {
 		return x + a - b
 	}
 	return x

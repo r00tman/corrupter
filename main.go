@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-var seededRand = rand.New(rand.NewSource(time.Now().UnixNano()))
+var seededRand = rand.New(rand.NewSource(1))
 
 func check(e error) {
 	if e != nil {
@@ -66,7 +66,15 @@ func main() {
 	meanAbberPtr := flag.Int("meanabber", 10, "mean chromatic abberation offset")
 	stdAbberPtr := flag.Float64("stdabber", 10, "std. dev. of chromatic abberation offset (lower values induce longer trails)")
 
+	seedPtr := flag.Int64("seed", -1, "random seed. set to -1 if you want to generate it from time. the old version has used seed=1")
+
 	flag.Parse()
+
+	if *seedPtr == -1 {
+		seededRand = rand.New(rand.NewSource(time.Now().UTC().UnixNano()))
+	} else if *seedPtr != 1 {
+		seededRand = rand.New(rand.NewSource(*seedPtr))
+	}
 
 	reader, err := os.Open(flag.Args()[0])
 	check(err)

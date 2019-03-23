@@ -12,6 +12,13 @@ $ ./corrupter shots/test2.png out.png && xdg-open out.png
 
 At the moment, you can only pass and output png images. But that's enough to work well with scrot and i3lock
 
+### Parameter example
+
+Example of a less disrupted image:
+```shell
+$ ./corrupter -mag 1 -boffset 2 screenshot.png out.png
+```
+
 ## Examples
 ![demo1](https://raw.githubusercontent.com/r00tman/corrupter/master/shots/test2_out.png)
 ![demo2](https://raw.githubusercontent.com/r00tman/corrupter/master/shots/screen2.png)

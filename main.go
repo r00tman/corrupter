@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"image"
 	"image/color"
 	"image/png"
@@ -30,9 +31,9 @@ func offset(m float64) int {
 	return int(sample)
 }
 
-func brighten(r uint32) uint32 {
+func brighten(r uint32, add uint32) uint32 {
 	// return r*4/6 + 20000
-	return r*5/6 + 10000
+	return r - r*add/65535 + add
 }
 
 func uint32_to_rgba(r, g, b, a uint32) color.RGBA {
@@ -40,7 +41,24 @@ func uint32_to_rgba(r, g, b, a uint32) color.RGBA {
 }
 
 func main() {
-	reader, err := os.Open(os.Args[1])
+	magPtr := flag.Float64("mag", 7.0, "dissolve blur strength")
+	blockHeightPtr := flag.Int("bheight", 10, "average distorted block height")
+	blockOffsetPtr := flag.Float64("boffset", 30., "distorted block offset strength")
+	strideMagPtr := flag.Float64("stride", 0.1, "distorted block stride strength")
+
+	lagPtr := flag.Float64("lag", 0.005, "per-channel scanline lag strength")
+	lrPtr := flag.Float64("lr", -7, "initial red scanline lag")
+	lgPtr := flag.Float64("lg", 0, "initial green scanline lag")
+	lbPtr := flag.Float64("lb", 3, "initial blue scanline lag")
+	stdOffsetPtr := flag.Float64("stdoffset", 10, "std. dev. red-blue channel offset (non-destructive)")
+	addPtr := flag.Int("add", 39, "additional brightness control (0-255)")
+
+	meanAbberPtr := flag.Int("meanabber", 10, "mean chromatic abberation offset")
+	stdAbberPtr := flag.Float64("stdabber", 10, "std. dev. of chromatic abberation offset (lower values induce longer trails)")
+
+	flag.Parse()
+
+	reader, err := os.Open(flag.Args()[0])
 	check(err)
 	m, err := png.Decode(reader)
 	check(err)
@@ -54,14 +72,17 @@ func main() {
 	stride := 0.
 	yset := 0
 	// const MAG = 2.5
-	const MAG = 7
+	MAG := *magPtr
 	// const MAG = 0
 	// const MAG = 3
+	BHEIGHT := *blockHeightPtr
+	BOFFSET := *blockOffsetPtr
+	STRIDE_MAG := *strideMagPtr
 	for y := b.Min.Y; y < b.Max.Y; y++ {
 		for x := b.Min.X; x < b.Max.X; x++ {
-			if rand.Intn(10*(b.Max.X-b.Min.X)) == 0 {
-				line_off = offset(30)
-				stride = rand.NormFloat64() * 0.1
+			if rand.Intn(BHEIGHT*(b.Max.X-b.Min.X)) == 0 {
+				line_off = offset(BOFFSET)
+				stride = rand.NormFloat64() * STRIDE_MAG
 				yset = y
 			}
 			stride_off := int(stride * float64(y-yset))
@@ -77,15 +98,17 @@ func main() {
 	// second stage is adding per-channel scan inconsistency and brightening
 	new_img1 := image.NewRGBA(b)
 
-	lr, lg, lb := -7., 0., +3.
+	lr, lg, lb := *lrPtr, *lgPtr, *lbPtr
 	// lr, lg, lb := 0., 0., 0.
-	const LAG = 0.005
+	LAG := *lagPtr
+	ADD := uint32(*addPtr) << 8
+	STD_OFFSET := *stdOffsetPtr
 	for y := b.Min.Y; y < b.Max.Y; y++ {
 		for x := b.Min.X; x < b.Max.X; x++ {
 			lr += rand.NormFloat64() * LAG
 			lg += rand.NormFloat64() * LAG
 			lb += rand.NormFloat64() * LAG
-			offx := offset(10)
+			offx := offset(STD_OFFSET)
 
 			r, _, _, a := new_img.At(
 				wrap(x+int(lr)-offx, b.Min.X, b.Max.X),
@@ -97,17 +120,19 @@ func main() {
 				wrap(x+int(lb)+offx, b.Min.X, b.Max.X),
 				wrap(y, b.Min.Y, b.Max.Y)).RGBA()
 
-			r, g, b = brighten(r), brighten(g), brighten(b)
+			r, g, b = brighten(r, ADD), brighten(g, ADD), brighten(b, ADD)
 			new_img1.Set(x, y, uint32_to_rgba(r, g, b, a))
 		}
 	}
 
 	// third stage is to add chromatic abberation+chromatic trails
 	// (trails happen because we're changing the same image we process)
+	MEAN_ABBER := *meanAbberPtr
+	STD_ABBER := *stdAbberPtr
 	for y := b.Min.Y; y < b.Max.Y; y++ {
 		for x := b.Min.X; x < b.Max.X; x++ {
 			// offx := 10 + offset(40)
-			offx := 10 + offset(10) // lower offset arg = longer trails
+			offx := MEAN_ABBER + offset(STD_ABBER) // lower offset arg = longer trails
 			r, _, _, a := new_img1.At(
 				wrap(x+offx, b.Min.X, b.Max.X),
 				wrap(y, b.Min.Y, b.Max.Y)).RGBA()
@@ -136,7 +161,7 @@ func main() {
 	// 	}
 	// }
 
-	writer, err := os.Create(os.Args[2])
+	writer, err := os.Create(flag.Args()[1])
 	check(err)
 	png.Encode(writer, new_img1)
 	writer.Close()

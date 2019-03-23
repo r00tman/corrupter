@@ -6,6 +6,7 @@ Simple image glitcher suitable for producing nice looking i3lock backgrounds
 ```shell
 $ git clone https://github.com/r00tman/corrupter
 $ cd corrupter && go build
+$ ./corrupter -h
 $ ./corrupter shots/test2.png out.png && xdg-open out.png
 ```
 

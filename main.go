@@ -17,12 +17,12 @@ func check(e error) {
 	}
 }
 
-func wrap(x, a, b int) int {
-	if x < a {
-		return x + b - a
+func wrap(x, b int) int {
+	if x < 0 {
+		return x + b
 	}
 	if x >= b {
-		return x + a - b
+		return x - b
 	}
 	return x
 }
@@ -32,9 +32,11 @@ func offset(m float64) int {
 	return int(sample)
 }
 
-func brighten(r uint32, add uint32) uint32 {
+func brighten(r uint8, add uint8) uint8 {
 	// return r*4/6 + 20000
-	return r - r*add/65535 + add
+	r32 := uint32(r)
+	add32 := uint32(add)
+	return uint8(r32 - r32*add32/255 + add32)
 }
 
 func uint32_to_rgba(r, g, b, a uint32) color.RGBA {
@@ -66,6 +68,7 @@ func main() {
 	reader, err := os.Open(flag.Args()[0])
 	check(err)
 	m, err := png.Decode(reader)
+	m_raw := m.(*image.NRGBA)
 	check(err)
 	reader.Close()
 
@@ -83,9 +86,9 @@ func main() {
 	BHEIGHT := *blockHeightPtr
 	BOFFSET := *blockOffsetPtr
 	STRIDE_MAG := *strideMagPtr
-	for y := b.Min.Y; y < b.Max.Y; y++ {
-		for x := b.Min.X; x < b.Max.X; x++ {
-			if rand.Intn(BHEIGHT*(b.Max.X-b.Min.X)) == 0 {
+	for y := 0; y < b.Max.Y; y++ {
+		for x := 0; x < b.Max.X; x++ {
+			if rand.Intn(BHEIGHT*b.Max.X) == 0 {
 				line_off = offset(BOFFSET)
 				stride = rand.NormFloat64() * STRIDE_MAG
 				yset = y
@@ -93,10 +96,10 @@ func main() {
 			stride_off := int(stride * float64(y-yset))
 			offx := offset(MAG) + line_off + stride_off
 			offy := offset(MAG)
-			src := m.At(
-				wrap(x+offx, b.Min.X, b.Max.X),
-				wrap(y+offy, b.Min.Y, b.Max.Y))
-			new_img.Set(x, y, src)
+			src_idx := m_raw.Stride*wrap(y+offy, b.Max.Y) + 4*wrap(x+offx, b.Max.X)
+			dst_idx := new_img.Stride*y + 4*x
+
+			copy(new_img.Pix[dst_idx:dst_idx+4], m_raw.Pix[src_idx:src_idx+4])
 		}
 	}
 
@@ -106,27 +109,28 @@ func main() {
 	lr, lg, lb := *lrPtr, *lgPtr, *lbPtr
 	// lr, lg, lb := 0., 0., 0.
 	LAG := *lagPtr
-	ADD := uint32(*addPtr) << 8
+	ADD := uint8(*addPtr)
 	STD_OFFSET := *stdOffsetPtr
-	for y := b.Min.Y; y < b.Max.Y; y++ {
-		for x := b.Min.X; x < b.Max.X; x++ {
+	for y := 0; y < b.Max.Y; y++ {
+		for x := 0; x < b.Max.X; x++ {
 			lr += rand.NormFloat64() * LAG
 			lg += rand.NormFloat64() * LAG
 			lb += rand.NormFloat64() * LAG
 			offx := offset(STD_OFFSET)
 
-			r, _, _, a := new_img.At(
-				wrap(x+int(lr)-offx, b.Min.X, b.Max.X),
-				wrap(y, b.Min.Y, b.Max.Y)).RGBA()
-			_, g, _, _ := new_img.At(
-				wrap(x+int(lg), b.Min.X, b.Max.X),
-				wrap(y, b.Min.Y, b.Max.Y)).RGBA()
-			_, _, b, _ := new_img.At(
-				wrap(x+int(lb)+offx, b.Min.X, b.Max.X),
-				wrap(y, b.Min.Y, b.Max.Y)).RGBA()
+			ra_idx := new_img.Stride*y + 4*wrap(x+int(lr)-offx, b.Max.X)
+			g_idx := new_img.Stride*y + 4*wrap(x+int(lg), b.Max.X)
+			b_idx := new_img.Stride*y + 4*wrap(x+int(lg)+offx, b.Max.X)
+
+			r := new_img.Pix[ra_idx]
+			a := new_img.Pix[ra_idx+3]
+			g := new_img.Pix[g_idx+1]
+			b := new_img.Pix[b_idx+2]
 
 			r, g, b = brighten(r, ADD), brighten(g, ADD), brighten(b, ADD)
-			new_img1.Set(x, y, uint32_to_rgba(r, g, b, a))
+			dst_idx := new_img1.Stride*y + 4*x
+
+			copy(new_img1.Pix[dst_idx:dst_idx+4], []uint8{r, g, b, a})
 		}
 	}
 
@@ -134,37 +138,24 @@ func main() {
 	// (trails happen because we're changing the same image we process)
 	MEAN_ABBER := *meanAbberPtr
 	STD_ABBER := *stdAbberPtr
-	for y := b.Min.Y; y < b.Max.Y; y++ {
-		for x := b.Min.X; x < b.Max.X; x++ {
+	for y := 0; y < b.Max.Y; y++ {
+		for x := 0; x < b.Max.X; x++ {
 			// offx := 10 + offset(40)
 			offx := MEAN_ABBER + offset(STD_ABBER) // lower offset arg = longer trails
-			r, _, _, a := new_img1.At(
-				wrap(x+offx, b.Min.X, b.Max.X),
-				wrap(y, b.Min.Y, b.Max.Y)).RGBA()
-			_, g, _, _ := new_img1.At(
-				wrap(x, b.Min.X, b.Max.X),
-				wrap(y, b.Min.Y, b.Max.Y)).RGBA()
-			_, _, b, _ := new_img1.At(
-				wrap(x-offx, b.Min.X, b.Max.X),
-				wrap(y, b.Min.Y, b.Max.Y)).RGBA()
-			new_img1.Set(x, y, uint32_to_rgba(r, g, b, a))
+
+			ra_idx := new_img1.Stride*y + 4*wrap(x+offx, b.Max.X)
+			g_idx := new_img1.Stride*y + 4*wrap(x, b.Max.X)
+			b_idx := new_img1.Stride*y + 4*wrap(x-offx, b.Max.X)
+
+			r := new_img1.Pix[ra_idx]
+			a := new_img1.Pix[ra_idx+3]
+			g := new_img1.Pix[g_idx+1]
+			b := new_img1.Pix[b_idx+2]
+
+			dst_idx := new_img1.Stride*y + 4*x
+			copy(new_img1.Pix[dst_idx:dst_idx+4], []uint8{r, g, b, a})
 		}
 	}
-	// for y := b.Min.Y; y < b.Max.Y; y++ {
-	// 	for x := b.Min.X; x < b.Max.X; x++ {
-	// 		offx := 10
-	// 		r, _, _, a := new_img.At(
-	// 			wrap(x+offx, b.Min.X, b.Max.X),
-	// 			wrap(y, b.Min.Y, b.Max.Y)).RGBA()
-	// 		_, g, _, _ := new_img.At(
-	// 			wrap(x, b.Min.X, b.Max.X),
-	// 			wrap(y, b.Min.Y, b.Max.Y)).RGBA()
-	// 		_, _, b, _ := new_img.At(
-	// 			wrap(x-offx, b.Min.X, b.Max.X),
-	// 			wrap(y, b.Min.Y, b.Max.Y)).RGBA()
-	// 		new_img.Set(x, y, uint32_to_rgba(r, g, b, a))
-	// 	}
-	// }
 
 	writer, err := os.Create(flag.Args()[1])
 	check(err)

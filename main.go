@@ -68,7 +68,18 @@ func main() {
 	reader, err := os.Open(flag.Args()[0])
 	check(err)
 	m, err := png.Decode(reader)
-	m_raw := m.(*image.NRGBA)
+	m_raw_stride, m_raw_pix := 0, []uint8(nil)
+
+	switch m.(type) {
+	case *image.NRGBA:
+		m_raw := m.(*image.NRGBA)
+		m_raw_stride = m_raw.Stride
+		m_raw_pix = m_raw.Pix
+	case *image.RGBA:
+		m_raw := m.(*image.RGBA)
+		m_raw_stride = m_raw.Stride
+		m_raw_pix = m_raw.Pix
+	}
 	check(err)
 	reader.Close()
 
@@ -96,10 +107,10 @@ func main() {
 			stride_off := int(stride * float64(y-yset))
 			offx := offset(MAG) + line_off + stride_off
 			offy := offset(MAG)
-			src_idx := m_raw.Stride*wrap(y+offy, b.Max.Y) + 4*wrap(x+offx, b.Max.X)
+			src_idx := m_raw_stride*wrap(y+offy, b.Max.Y) + 4*wrap(x+offx, b.Max.X)
 			dst_idx := new_img.Stride*y + 4*x
 
-			copy(new_img.Pix[dst_idx:dst_idx+4], m_raw.Pix[src_idx:src_idx+4])
+			copy(new_img.Pix[dst_idx:dst_idx+4], m_raw_pix[src_idx:src_idx+4])
 		}
 	}
 

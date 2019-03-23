@@ -30,6 +30,15 @@ func offset(m float64) int {
 	return int(sample)
 }
 
+func brighten(r uint32) uint32 {
+	// return r*4/6 + 20000
+	return r*5/6 + 10000
+}
+
+func uint32_to_rgba(r, g, b, a uint32) color.RGBA {
+	return color.RGBA{uint8(r >> 8), uint8(g >> 8), uint8(b >> 8), uint8(a >> 8)}
+}
+
 func main() {
 	reader, err := os.Open(os.Args[1])
 	check(err)
@@ -87,18 +96,18 @@ func main() {
 			_, _, b, _ := new_img.At(
 				wrap(x+int(lb)+offx, b.Min.X, b.Max.X),
 				wrap(y, b.Min.Y, b.Max.Y)).RGBA()
-			// new_img1.Set(x, y, color.RGBA{uint8(r >> 8), uint8(g >> 8), uint8(b >> 8), uint8(a >> 8)})
-			// new_img1.Set(x, y, color.RGBA{uint8((r*4/6 + 20000) >> 8), uint8((g*4/6 + 20000) >> 8), uint8((b*4/6 + 20000) >> 8), uint8(a >> 8)})
-			new_img1.Set(x, y, color.RGBA{uint8((r*5/6 + 10000) >> 8), uint8((g*5/6 + 10000) >> 8), uint8((b*5/6 + 10000) >> 8), uint8(a >> 8)})
+
+			r, g, b = brighten(r), brighten(g), brighten(b)
+			new_img1.Set(x, y, uint32_to_rgba(r, g, b, a))
 		}
 	}
 
 	// third stage is to add chromatic abberation+chromatic trails
-	// (trails happen because we're writing on the same image we read)
+	// (trails happen because we're changing the same image we process)
 	for y := b.Min.Y; y < b.Max.Y; y++ {
 		for x := b.Min.X; x < b.Max.X; x++ {
 			// offx := 10 + offset(40)
-			offx := 10 + offset(10)
+			offx := 10 + offset(10) // lower offset arg = longer trails
 			r, _, _, a := new_img1.At(
 				wrap(x+offx, b.Min.X, b.Max.X),
 				wrap(y, b.Min.Y, b.Max.Y)).RGBA()
@@ -108,7 +117,7 @@ func main() {
 			_, _, b, _ := new_img1.At(
 				wrap(x-offx, b.Min.X, b.Max.X),
 				wrap(y, b.Min.Y, b.Max.Y)).RGBA()
-			new_img1.Set(x, y, color.RGBA{uint8(r >> 8), uint8(g >> 8), uint8(b >> 8), uint8(a >> 8)})
+			new_img1.Set(x, y, uint32_to_rgba(r, g, b, a))
 		}
 	}
 	// for y := b.Min.Y; y < b.Max.Y; y++ {
@@ -123,7 +132,7 @@ func main() {
 	// 		_, _, b, _ := new_img.At(
 	// 			wrap(x-offx, b.Min.X, b.Max.X),
 	// 			wrap(y, b.Min.Y, b.Max.Y)).RGBA()
-	// 		new_img.Set(x, y, color.RGBA{uint8(r >> 8), uint8(g >> 8), uint8(b >> 8), uint8(a >> 8)})
+	// 		new_img.Set(x, y, uint32_to_rgba(r, g, b, a))
 	// 	}
 	// }
 

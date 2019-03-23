@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"image"
-	"image/color"
 	"image/png"
 	"log"
 	"math/rand"
@@ -36,14 +35,8 @@ func offset(m float64) int {
 }
 
 func brighten(r uint8, add uint8) uint8 {
-	// return r*4/6 + 20000
-	r32 := uint32(r)
-	add32 := uint32(add)
+	r32, add32 := uint32(r), uint32(add)
 	return uint8(r32 - r32*add32/255 + add32)
-}
-
-func uint32_to_rgba(r, g, b, a uint32) color.RGBA {
-	return color.RGBA{uint8(r >> 8), uint8(g >> 8), uint8(b >> 8), uint8(a >> 8)}
 }
 
 func main() {
@@ -101,10 +94,7 @@ func main() {
 	line_off := 0
 	stride := 0.
 	yset := 0
-	// const MAG = 2.5
 	MAG := *magPtr
-	// const MAG = 0
-	// const MAG = 3
 	BHEIGHT := *blockHeightPtr
 	BOFFSET := *blockOffsetPtr
 	STRIDE_MAG := *strideMagPtr
@@ -129,7 +119,6 @@ func main() {
 	new_img1 := image.NewRGBA(b)
 
 	lr, lg, lb := *lrPtr, *lgPtr, *lbPtr
-	// lr, lg, lb := 0., 0., 0.
 	LAG := *lagPtr
 	ADD := uint8(*addPtr)
 	STD_OFFSET := *stdOffsetPtr
@@ -162,7 +151,6 @@ func main() {
 	STD_ABBER := *stdAbberPtr
 	for y := 0; y < b.Max.Y; y++ {
 		for x := 0; x < b.Max.X; x++ {
-			// offx := 10 + offset(40)
 			offx := MEAN_ABBER + offset(STD_ABBER) // lower offset arg = longer trails
 
 			ra_idx := new_img1.Stride*y + 4*wrap(x+offx, b.Max.X)

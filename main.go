@@ -59,7 +59,7 @@ func main() {
 	lgPtr := flag.Float64("lg", 0, "initial green scanline lag")
 	lbPtr := flag.Float64("lb", 3, "initial blue scanline lag")
 	stdOffsetPtr := flag.Float64("stdoffset", 10, "std. dev. of red-blue channel offset (non-destructive)")
-	addPtr := flag.Int("add", 39, "additional brightness control (0-255)")
+	addPtr := flag.Int("add", 37, "additional brightness control (0-255)")
 
 	meanAbberPtr := flag.Int("meanabber", 10, "mean chromatic abberation offset")
 	stdAbberPtr := flag.Float64("stdabber", 10, "std. dev. of chromatic abberation offset (lower values induce longer trails)")

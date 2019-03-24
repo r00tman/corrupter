@@ -10,7 +10,9 @@ $ ./corrupter -h
 $ ./corrupter shots/test2.png out.png && xdg-open out.png
 ```
 
-At the moment, you can only pass and output png images. But that's enough to work well with scrot and i3lock
+At the moment, you can only pass and output png images. But that's enough to work well with scrot and i3lock.
+
+Also, now there's [corrupter-git](https://aur.archlinux.org/packages/corrupter-git/) AUR package maintained by [alrayyes](https://github.com/alrayyes)!
 
 ### Less distorted image
 

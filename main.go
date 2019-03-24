@@ -45,7 +45,8 @@ func brighten(r uint8, add uint8) uint8 {
 func main() {
 	// command line parsing
 	flag.Usage = func() {
-		fmt.Fprintf(flag.CommandLine.Output(), "Usage: %s [options] [input] [output] \n", os.Args[0])
+		fmt.Fprintf(flag.CommandLine.Output(), "Usage: %s [options] [input] [output]\n", os.Args[0])
+		fmt.Fprintf(flag.CommandLine.Output(), "   or: %s [options] - (for stdin+stdout processing)\n", os.Args[0])
 		flag.PrintDefaults()
 	}
 	magPtr := flag.Float64("mag", 7.0, "dissolve blur strength")
@@ -74,8 +75,21 @@ func main() {
 	}
 
 	// flag.Args() contain all non-option arguments, i.e., our input and output files
-	reader, err := os.Open(flag.Args()[0])
-	check(err)
+	reader := (*os.File)(nil)
+	if len(flag.Args()) == 0 {
+		flag.Usage()
+		os.Exit(2)
+	} else if flag.Args()[0] == "-" {
+		// stdin/stdout processing
+		reader = os.Stdin
+	} else if len(flag.Args()) == 2 {
+		err := error(nil)
+		reader, err = os.Open(flag.Args()[0])
+		check(err)
+	} else {
+		flag.Usage()
+		os.Exit(2)
+	}
 	m, err := png.Decode(reader)
 	check(err)
 	reader.Close()
@@ -190,8 +204,14 @@ func main() {
 	}
 
 	// write the image
-	writer, err := os.Create(flag.Args()[1])
-	check(err)
+	writer := (*os.File)(nil)
+	if flag.Args()[0] == "-" {
+		// stdin/stdout processing
+		writer = os.Stdout
+	} else {
+		writer, err = os.Create(flag.Args()[1])
+		check(err)
+	}
 	png.Encode(writer, new_img1)
 	writer.Close()
 }

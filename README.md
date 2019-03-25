@@ -21,6 +21,15 @@ Default config is pretty heavy-handed. To get less disrupted images you may want
 $ ./corrupter -mag 1 -boffset 2 shots/test2.png out.png && xdg-open out.png
 ```
 
+### Using with i3lock+scrot/swaylock+grim
+Example lock script:
+```bash
+#!/usr/bin/env bash
+tmpbg="/tmp/screen.png"
+scrot "$tmpbg"; corrupter "$tmpbg" "$tmpbg"
+i3lock -i "$tmpbg"; rm "$tmpbg"
+```
+
 ## Examples
 
 All images are obtained using the default parameters.

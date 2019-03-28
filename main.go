@@ -113,7 +113,7 @@ func main() {
 	b := m.Bounds()
 
 	// first stage is dissolve+block corruption
-	new_img := image.NewRGBA(b)
+	new_img := image.NewNRGBA(b)
 	line_off := 0
 	stride := 0.
 	yset := 0
@@ -146,7 +146,7 @@ func main() {
 	}
 
 	// second stage is adding per-channel scan inconsistency and brightening
-	new_img1 := image.NewRGBA(b)
+	new_img1 := image.NewNRGBA(b)
 
 	lr, lg, lb := *lrPtr, *lgPtr, *lbPtr
 	LAG := *lagPtr

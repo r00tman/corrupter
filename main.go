@@ -212,6 +212,7 @@ func main() {
 		writer, err = os.Create(flag.Args()[1])
 		check(err)
 	}
-	png.Encode(writer, new_img1)
+	e := png.Encoder{CompressionLevel: png.NoCompression}
+	e.Encode(writer, new_img1)
 	writer.Close()
 }

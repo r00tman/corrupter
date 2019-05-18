@@ -45,8 +45,8 @@ func brighten(r uint8, add uint8) uint8 {
 func main() {
 	// command line parsing
 	flag.Usage = func() {
-		fmt.Fprintf(flag.CommandLine.Output(), "Usage: %s [options] [input] [output]\n", os.Args[0])
-		fmt.Fprintf(flag.CommandLine.Output(), "   or: %s [options] - (for stdin+stdout processing)\n", os.Args[0])
+		fmt.Fprintf(os.Stderr, "Usage: %s [options] [input] [output]\n", os.Args[0])
+		fmt.Fprintf(os.Stderr, "   or: %s [options] - (for stdin+stdout processing)\n", os.Args[0])
 		flag.PrintDefaults()
 	}
 	magPtr := flag.Float64("mag", 7.0, "dissolve blur strength")

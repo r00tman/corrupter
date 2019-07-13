@@ -59,7 +59,14 @@ $ ./corrupter -mag 1 -boffset 2 shots/test2.png out.png && xdg-open out.png
 
 ## Examples
 
-All images are obtained using the default parameters.
-![demo1](https://raw.githubusercontent.com/r00tman/corrupter/master/shots/test2_out.png)
-![demo2](https://raw.githubusercontent.com/r00tman/corrupter/master/shots/screen2.png)
-![demo3](https://raw.githubusercontent.com/r00tman/corrupter/master/shots/screen5.png)
+Images using the default parameters:
+![demo1](https://raw.githubusercontent.com/r00tman/corrupter/master/shots/which-example-after.png)
+![demo2](https://raw.githubusercontent.com/r00tman/corrupter/master/shots/light-theme-example.png)
+![demo3](https://raw.githubusercontent.com/r00tman/corrupter/master/shots/dark-theme-example.png)
+
+With custom parameters: \
+Before:
+![demo4](https://raw.githubusercontent.com/r00tman/corrupter/master/shots/ps2-example-before.jpg)
+
+After (Custom parameters and ImageMagick dim):
+![demo5](https://raw.githubusercontent.com/r00tman/corrupter/master/shots/ps2-example-after.png)

@@ -64,7 +64,7 @@ Images using the default parameters:
 
 With custom parameters: \
 Before:
-![demo4](https://raw.githubusercontent.com/r00tman/corrupter/master/shots/ps2-example-before.jpg)
+![demo4](https://raw.githubusercontent.com/r00tman/corrupter/master/shots/ps2-example-before.png)
 
 After (custom parameters and ImageMagick dim):
 ![demo5](https://raw.githubusercontent.com/r00tman/corrupter/master/shots/ps2-example-after.png)

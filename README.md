@@ -10,7 +10,9 @@ $ ./corrupter -h
 $ ./corrupter shots/example.png out.png && xdg-open out.png
 ```
 
-If you're using an arch-based distro there are 2 AUR packages!
+Alternatively, you can use `go get -u github.com/r00tman/corrupter` to install. Then, the binary will be at `~/go/bin/corrupter` (`$GOPATH/go/bin/corrupter` if `$GOPATH` is set).
+
+If you're using an Arch-based distro, you can use one of the two AUR packages!
  - [corrupter-git](https://aur.archlinux.org/packages/corrupter-git/) maintained by [alrayyes](https://github.com/alrayyes), for an automated build, and
  - [corrupter-bin](https://aur.archlinux.org/packages/corrupter-bin/) maintained by [marcospb19](https://github.com/marcospb19), for the pre-built binary.
 
@@ -45,7 +47,7 @@ and then, in your `~/.config/i3/config`:
 bindsym $mod+Control+l exec --no-startup-id i3lock -i ./.wallpaper.png
 ```
 
-This method is slightly faster since the image processing is already done.
+This method is slightly faster since the image processing has been done beforehand.
 
 
 ### Less distorted image

@@ -10,7 +10,7 @@ $ ./corrupter -h
 $ ./corrupter shots/example.png out.png && xdg-open out.png
 ```
 
-Alternatively, you can use `go get -u github.com/r00tman/corrupter` to install. Then, the binary will be at `~/go/bin/corrupter` (`$GOPATH/go/bin/corrupter` if `$GOPATH` is set).
+Alternatively, you can use `go get -u github.com/r00tman/corrupter` to install. Then, the binary will be at `~/go/bin/corrupter` (`$GOPATH/bin/corrupter` if `$GOPATH` is set).
 
 If you're using an Arch-based distro, you can use one of the two AUR packages!
  - [corrupter-git](https://aur.archlinux.org/packages/corrupter-git/) maintained by [alrayyes](https://github.com/alrayyes), for an automated build, and

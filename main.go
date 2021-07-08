@@ -22,10 +22,10 @@ func check(e error) {
 // force x to stay in [0, b) range. x is assumed to be in [-b,2*b) range
 func wrap(x, b int) int {
 	if x < 0 {
-		return x + b
+		return 0
 	}
 	if x >= b {
-		return x - b
+		return b - 1
 	}
 	return x
 }

@@ -15,6 +15,7 @@ Alternatively, you can use `go get -u github.com/r00tman/corrupter` to install. 
 If you're using an Arch-based distro, you can use one of the two AUR packages!
  - [corrupter-git](https://aur.archlinux.org/packages/corrupter-git/) maintained by [alrayyes](https://github.com/alrayyes), for an automated build, and
  - [corrupter-bin](https://aur.archlinux.org/packages/corrupter-bin/) maintained by [marcospb19](https://github.com/marcospb19), for the pre-built binary.
+ - [swaylock-corrupter](https://aur.archlinux.org/packages/swaylock-corrupter) maintained by [slithery0](https://github.com/slithery0), for corrupter pre-build binary along with swaylock intregation.
 
 At the moment, you can only pass and output `.png` images. But that's enough to work well with `scrot` and `i3lock`.
 

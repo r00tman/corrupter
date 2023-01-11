@@ -124,11 +124,16 @@ func main() {
 	for y := 0; y < b.Max.Y; y++ {
 		for x := 0; x < b.Max.X; x++ {
 			// Every BHEIGHT lines in average a new distorted block begins
-			if seededRand.Intn(BHEIGHT*b.Max.X) == 0 {
+			if BHEIGHT <= 0 {
+				line_off = offset(BOFFSET)
+				stride = seededRand.NormFloat64() * STRIDE_MAG
+				yset = y
+			} else if seededRand.Intn(BHEIGHT*b.Max.X) == 0 {
 				line_off = offset(BOFFSET)
 				stride = seededRand.NormFloat64() * STRIDE_MAG
 				yset = y
 			}
+
 			// at the line where the block has begun, we don't want to offset the image
 			// so stride_off is 0 on the block's line
 			stride_off := int(stride * float64(y-yset))
